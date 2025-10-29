@@ -1,0 +1,6 @@
+# depslib dependency file v1.0
+1761753036 source:c:\users\fenat\onedrive\desktop\tarefa_c\main.c
+	<stdio.h>
+	<stdlib.h>
+	<time.h>
+
