@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#define n 500000
+#define n 100000
 typedef struct estrutura
 {
     float valor;
@@ -25,7 +25,7 @@ void InsertionSort (str v[])
     start_time=clock();
     for(i=0; i<n; i++)
     {
-        for(j=i; j >= 0; j--)
+        for(j=i; j > 0; j--)
         {
             if(v[j-1].chave < v[j].chave)
             {
@@ -38,11 +38,13 @@ void InsertionSort (str v[])
     printf("Tempo decorrido de insertionSort: %.3f segundos\n",((float)(end_time-start_time))/CLOCKS_PER_SEC);
 }
 
-int particao(str *v, int LI, int LS,int pivo)
+
+int particaoEsquerda(str *v, int LI, int LS)
 {
 
-    int  e=LI, d=LS;
+    int     pivo,e=LI, d=LS;
     str aux;
+    pivo = v[e].chave;
     while(e < d)
     {
         while((v[e].chave>=pivo)&& (e<LS))
@@ -65,19 +67,108 @@ int particao(str *v, int LI, int LS,int pivo)
     v[d]=aux;
     return d;
 }
+int particaoUltimo(str *v, int LI, int LS)
+{
 
-void quicksort(str *v, int LI, int LS,int pivo)
+    int pivo,e=LI, d=LS;
+    str aux;
+    pivo = v[d].chave;
+    while(e < d)
+    {
+        while((v[e].chave>pivo)&& (e<LS))
+        {
+            e++;
+        }
+        while((v[d].chave<=pivo)&&(d>LI))
+        {
+            d--;
+        }
+        if(e<d)
+        {
+            aux = v[e];
+            v[e]=v[d];
+            v[d]=aux;
+        }
+    }
+    aux = v[LS];
+    v[LS] = v[e];
+    v[e] = aux;
+    return e;
+}
+int particaoMeio(str *v, int LI, int LS)
+{
+
+    int pivo,e=LI, d=LS;
+    str aux;
+    pivo = v[(LS+LI) / 2].chave;
+    while(e < d)
+    {
+        while((v[e].chave>pivo)&& (e<LS))
+        {
+            e++;
+        }
+        while((v[d].chave<pivo)&&(d>LI))
+        {
+            d--;
+        }
+        if(e<d)
+        {
+            aux = v[e];
+            v[e]=v[d];
+            v[d]=aux;
+            e++;
+            d--;
+        }
+    }
+    return d;
+}
+
+
+
+void quicksortEsquerda(str *v, int LI, int LS)
 {
 
     if(LI<LS)
     {
         int p;
-        p = particao(v,LI,LS,pivo);
-        quicksort(v,LI,p-1,pivo);
-        quicksort(v,p+1,LS,pivo);
+        p = particaoEsquerda(v,LI,LS);
+        quicksortEsquerda(v,LI,p-1);
+        quicksortEsquerda(v,p+1,LS);
     }
 
 }
+
+void quicksortMeio(str *v, int LI, int LS)
+{
+
+    if(LI<LS)
+    {
+        int p;
+        p = particaoMeio(v,LI,LS);
+        quicksortMeio(v,LI,p-1);
+        quicksortMeio(v,p+1,LS);
+    }
+
+}
+
+void quicksortUltimo(str *v, int LI, int LS)
+{
+
+    if(LI<LS)
+    {
+        int p;
+        p = particaoUltimo(v,LI,LS);
+        quicksortUltimo(v,LI,p-1);
+        quicksortUltimo(v,p+1,LS);
+    }
+
+}
+
+
+
+
+
+
 
 
 
@@ -130,7 +221,7 @@ int main()
     }
         printf("----------------------\n");
 
-    //pivo como primeiro elemento    
+    //pivo como primeiro elemento
     for(int i=0; i<20; i++)
     {
         srand(i);
@@ -139,12 +230,12 @@ int main()
 
         clock_t start_time,end_time;
         start_time=clock();
-        quicksort(A,0,n-1,A[0].chave);
+        quicksortEsquerda(A,0,n-1);
         end_time=clock();
         printf("Tempo decorrido de Quickshort aletorio pivo como primeiro elemento: %.3f segundos\n",((float)(end_time-start_time))/CLOCKS_PER_SEC);
 
     }
-    
+
     printf("----------------------\n");
     //pivo como ultimo elemento
     for(int i=0; i<20; i++)
@@ -153,7 +244,7 @@ int main()
         gerarVetorAleatorio(A);
         clock_t start_time,end_time;
         start_time=clock();
-        quicksort(A,0,n-1,A[n-1].chave);
+        quicksortUltimo(A,0,n-1);
         end_time=clock();
         printf("Tempo decorrido de Quickshort aletorio pivo ultimo elemento: %.3f segundos\n",((float)(end_time-start_time))/CLOCKS_PER_SEC);
 
@@ -167,7 +258,7 @@ int main()
         gerarVetorAleatorio(A);
         clock_t start_time,end_time;
         start_time=clock();
-        quicksort(A,0,n-1,A[n/2].chave);
+        quicksortMeio(A,0,n-1);
         end_time=clock();
         printf("Tempo decorrido de Quickshort aletorio pivo elemento meio: %.3f segundos\n",((float)(end_time-start_time))/CLOCKS_PER_SEC);
 
@@ -198,7 +289,7 @@ int main()
         gerarOrdenado(A);
         clock_t start_time,end_time;
         start_time=clock();
-        quicksort(A,0,n-1,A[0].chave);
+        quicksortEsquerda(A,0,n-1);
         end_time=clock();
         printf("Tempo decorrido de Quickshort ordenado pivo primeiro elemento: %.3f segundos\n",((float)(end_time-start_time))/CLOCKS_PER_SEC);
 
@@ -211,7 +302,7 @@ int main()
         gerarOrdenado(A);
         clock_t start_time,end_time;
         start_time=clock();
-        quicksort(A,0,n-1,A[n-1].chave);
+        quicksortUltimo(A,0,n-1);
         end_time=clock();
         printf("Tempo decorrido de Quickshort ordenado pivo ultimo elemento: %.3f segundos\n",((float)(end_time-start_time))/CLOCKS_PER_SEC);
 
@@ -224,7 +315,7 @@ int main()
         gerarOrdenado(A);
         clock_t start_time,end_time;
         start_time=clock();
-        quicksort(A,0,n-1,A[n/2].chave);
+        quicksortMeio(A,0,n-1);
         end_time=clock();
         printf("Tempo decorrido de Quickshort ordenado pivo elemento meio: %.3f segundos\n",((float)(end_time-start_time))/CLOCKS_PER_SEC);
 
